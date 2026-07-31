@@ -34,7 +34,9 @@ private:
     void handleVersionReply(QNetworkReply* reply);
 
     QNetworkAccessManager* m_nam{nullptr};
+    QNetworkReply* m_activeDownload{nullptr};
     QString m_versionUrl;
     QString m_localVersion;
     QString m_pendingDownloadUrl;
+    int m_lastLoggedPct{-1};
 };

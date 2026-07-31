@@ -26,6 +26,7 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QPixmap>
+#include <QProcess>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QStatusBar>
@@ -96,12 +97,22 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(m_updater, &AutoUpdater::downloadFinished, this, [this](const QString& path) {
         m_timer.stop();
         log(m_timer.dumpSummary());
+        const QString nativePath = QDir::toNativeSeparators(QFileInfo(path).absoluteFilePath());
         const auto ret = QMessageBox::information(
             this, "下载完成",
-            QStringLiteral("安装包已保存到:\n%1\n\n打开所在文件夹？").arg(path),
+            QStringLiteral("安装包已保存到:\n%1\n\n打开所在文件夹？").arg(nativePath),
             QMessageBox::Yes | QMessageBox::No);
-        if (ret == QMessageBox::Yes)
-            QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(path).absolutePath()));
+        if (ret == QMessageBox::Yes) {
+#ifdef Q_OS_WIN
+            // Single arg: /select,C:\path\to\file — opens folder and selects file.
+            QProcess::startDetached(
+                QStringLiteral("explorer.exe"),
+                {QStringLiteral("/select,%1").arg(nativePath)});
+#else
+            QDesktopServices::openUrl(
+                QUrl::fromLocalFile(QFileInfo(path).absolutePath()));
+#endif
+        }
     });
     connect(m_updater, &AutoUpdater::downloadFailed, this, [this](const QString& r) {
         m_timer.stop();
