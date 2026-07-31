@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/">
+        <file>style.qss</file>
+        <file>icons/app.png</file>
+        <file>icons/tool_select.png</file>
+        <file>icons/tool_point.png</file>
+        <file>icons/tool_line.png</file>
+        <file>icons/tool_rect.png</file>
+        <file>icons/tool_rotrect.png</file>
+        <file>icons/tool_polygon.png</file>
+        <file>icons/tool_brush.png</file>
+        <file>icons/open_image.png</file>
+        <file>icons/open_folder.png</file>
+        <file>icons/save.png</file>
+        <file>icons/load.png</file>
+        <file>icons/color.png</file>
+        <file>icons/delete.png</file>
+        <file>icons/clear.png</file>
+        <file>icons/fit.png</file>
+    </qresource>
+</RCC>
