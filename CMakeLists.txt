@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(JTLabelImage LANGUAGES CXX VERSION 1.0.0)
+project(JTLabelImage LANGUAGES CXX VERSION 1.0.1)
 
 get_filename_component(KL_PROJECT_ROOT "${CMAKE_SOURCE_DIR}/.." ABSOLUTE)
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
