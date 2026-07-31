@@ -217,11 +217,12 @@ flowchart LR
   "brushSize": 20,
   "updateUrl": "https://kelvin-luo.github.io/version.json",
   "checkUpdateOnStartup": true,
-  "lastOpenDir": ""
+  "lastOpenDir": "",
+  "themeId": "default"
 }
 ```
 
-目录字段相对于 `msvc_release`（可执行文件目录）。
+`themeId` 可选：`default`（黑白）、`light_green`、`light_blue`、`deep_blue`、`dark`、`light_yellow`、`orange`。也可在 **视图 → 主题颜色** 或参数面板中切换。
 
 ### 关于 / 版本
 

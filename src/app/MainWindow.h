@@ -11,6 +11,7 @@
 
 class AutoUpdater;
 class LogPanel;
+class QActionGroup;
 class QCheckBox;
 class QComboBox;
 class QLabel;
@@ -41,6 +42,8 @@ private slots:
     void onFileSelected(int row);
     void onLabelChanged();
     void onPickColor();
+    void onThemeChanged();
+    void applyTheme(const QString& themeId);
 
 private:
     void setupUi();
@@ -53,6 +56,7 @@ private:
     QString defaultConfigPath() const;
     void log(const QString& msg);
     void ensureRuntimeDirs();
+    void syncThemeMenu(const QString& themeId);
 
     CanvasWidget* m_canvas{nullptr};
     LogPanel*     m_log{nullptr};
@@ -70,6 +74,8 @@ private:
     QLineEdit*    m_modelsDirEdit{nullptr};
     QLineEdit*    m_updateUrlEdit{nullptr};
     QCheckBox*    m_checkUpdateBox{nullptr};
+    QComboBox*    m_themeCombo{nullptr};
+    QActionGroup* m_themeActionGroup{nullptr};
 
     QStringList   m_files;
     QString       m_currentDir;

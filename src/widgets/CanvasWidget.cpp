@@ -14,8 +14,22 @@ CanvasWidget::CanvasWidget(QWidget* parent) : QWidget(parent) {
     setMouseTracking(true);
     setAutoFillBackground(true);
     QPalette pal = palette();
-    pal.setColor(QPalette::Window, QColor(30, 32, 36));
+    pal.setColor(QPalette::Window, m_themeBg);
     setPalette(pal);
+}
+
+void CanvasWidget::setThemeColors(const QColor& bg,
+                                  const QColor& hint,
+                                  const QColor& checkerDark,
+                                  const QColor& checkerLight) {
+    m_themeBg = bg;
+    m_themeHint = hint;
+    m_checkerDark = checkerDark;
+    m_checkerLight = checkerLight;
+    QPalette pal = palette();
+    pal.setColor(QPalette::Window, m_themeBg);
+    setPalette(pal);
+    update();
 }
 
 void CanvasWidget::setImage(const QImage& img, const QString& path) {
@@ -458,7 +472,7 @@ void CanvasWidget::paintEvent(QPaintEvent*) {
     p.fillRect(rect(), palette().window());
 
     if (m_image.isNull()) {
-        p.setPen(QColor(120, 125, 135));
+        p.setPen(m_themeHint);
         QFont f = p.font();
         f.setPointSize(11);
         p.setFont(f);
@@ -477,7 +491,7 @@ void CanvasWidget::paintEvent(QPaintEvent*) {
         for (int x = int(imgR.left()); x < imgR.right(); x += tile) {
             const bool dark = ((x / tile) + (y / tile)) % 2;
             p.fillRect(x, y, tile, tile,
-                       dark ? QColor(42, 44, 50) : QColor(52, 55, 62));
+                       dark ? m_checkerDark : m_checkerLight);
         }
     }
     p.restore();

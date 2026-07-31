@@ -14,6 +14,7 @@ struct AppConfig {
     QString updateUrl{"https://kelvin-luo.github.io/version.json"};
     bool    checkUpdateOnStartup{true};
     QString lastOpenDir;
+    QString themeId{"default"};
 
     QJsonObject toJson() const;
     static AppConfig fromJson(const QJsonObject& obj);

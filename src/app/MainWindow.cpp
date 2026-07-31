@@ -7,6 +7,7 @@
 #include "UiAssets.h"
 
 #include <QActionGroup>
+#include <QApplication>
 #include <QCheckBox>
 #include <QColorDialog>
 #include <QComboBox>
@@ -31,6 +32,8 @@
 #include <QToolBar>
 #include <QUrl>
 #include <QVBoxLayout>
+
+#include "ThemeManager.h"
 
 #ifndef KELVINLABEL_VERSION
 #  define KELVINLABEL_VERSION "0.0.0"
@@ -59,6 +62,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setupToolbar();
     setupDocks();
     syncUiFromConfig();
+    applyTheme(m_config.themeId);
     onLabelChanged();
 
     connect(m_updater, &AutoUpdater::logMessage, this, [this](const QString& m) { log(m); });
@@ -192,6 +196,25 @@ void MainWindow::setupMenus() {
                 m_canvas->fitToView();
                 m_canvas->update();
             });
+    QMenu* themeMenu = view->addMenu("主题颜色");
+    m_themeActionGroup = new QActionGroup(this);
+    m_themeActionGroup->setExclusive(true);
+    for (const auto& t : ThemeManager::allThemes()) {
+        QAction* a = themeMenu->addAction(t.displayName);
+        a->setCheckable(true);
+        a->setData(t.id);
+        m_themeActionGroup->addAction(a);
+        connect(a, &QAction::triggered, this, [this, id = t.id]() {
+            m_config.themeId = id;
+            applyTheme(id);
+            if (m_themeCombo) {
+                m_themeCombo->blockSignals(true);
+                m_themeCombo->setCurrentText(ThemeManager::displayNameFromId(id));
+                m_themeCombo->blockSignals(false);
+            }
+            log(QStringLiteral("已切换主题: %1").arg(ThemeManager::displayNameFromId(id)));
+        });
+    }
 
     QMenu* help = menuBar()->addMenu("帮助(&H)");
     connect(menuAct(help, "检查更新...", QIcon(), {}),
@@ -292,11 +315,16 @@ void MainWindow::setupDocks() {
     m_modelsDirEdit = new QLineEdit();
     m_updateUrlEdit = new QLineEdit();
     m_checkUpdateBox = new QCheckBox("启动时检查更新");
+    m_themeCombo = new QComboBox();
+    m_themeCombo->addItems(ThemeManager::displayNames());
     form->addRow("输入目录", m_inputDirEdit);
     form->addRow("输出目录", m_outputDirEdit);
     form->addRow("模型目录", m_modelsDirEdit);
+    form->addRow("主题颜色", m_themeCombo);
     form->addRow("更新 URL", m_updateUrlEdit);
     form->addRow("", m_checkUpdateBox);
+    connect(m_themeCombo, &QComboBox::currentTextChanged,
+            this, &MainWindow::onThemeChanged);
 
     auto* btnRow = new QHBoxLayout();
     auto* applyBtn = new QPushButton("应用参数");
@@ -328,6 +356,11 @@ void MainWindow::syncUiFromConfig() {
     if (m_modelsDirEdit) m_modelsDirEdit->setText(m_config.modelsDir);
     if (m_updateUrlEdit) m_updateUrlEdit->setText(m_config.updateUrl);
     if (m_checkUpdateBox) m_checkUpdateBox->setChecked(m_config.checkUpdateOnStartup);
+    if (m_themeCombo) {
+        m_themeCombo->blockSignals(true);
+        m_themeCombo->setCurrentText(ThemeManager::displayNameFromId(m_config.themeId));
+        m_themeCombo->blockSignals(false);
+    }
     if (m_labelCombo) {
         const int idx = m_labelCombo->findText(m_config.defaultLabel);
         if (idx >= 0) m_labelCombo->setCurrentIndex(idx);
@@ -336,6 +369,7 @@ void MainWindow::syncUiFromConfig() {
     m_labelColor = m_config.labelColor;
     if (m_brushSpin) m_brushSpin->setValue(m_config.brushSize);
     m_updater->setVersionUrl(m_config.updateUrl);
+    applyTheme(m_config.themeId);
     onLabelChanged();
 }
 
@@ -345,13 +379,44 @@ void MainWindow::applyConfigFromUi() {
     m_config.modelsDir = m_modelsDirEdit->text().trimmed();
     m_config.updateUrl = m_updateUrlEdit->text().trimmed();
     m_config.checkUpdateOnStartup = m_checkUpdateBox->isChecked();
+    m_config.themeId = ThemeManager::idFromDisplayName(m_themeCombo->currentText());
     m_config.defaultLabel = m_labelCombo->currentText();
     m_config.labelColor = m_labelColor;
     m_config.brushSize = m_brushSpin->value();
     m_updater->setVersionUrl(m_config.updateUrl);
     ensureRuntimeDirs();
+    applyTheme(m_config.themeId);
     onLabelChanged();
     log(QStringLiteral("已应用界面参数"));
+}
+
+void MainWindow::onThemeChanged() {
+    if (!m_themeCombo) return;
+    const QString id = ThemeManager::idFromDisplayName(m_themeCombo->currentText());
+    m_config.themeId = id;
+    applyTheme(id);
+    log(QStringLiteral("已切换主题: %1").arg(ThemeManager::displayNameFromId(id)));
+}
+
+void MainWindow::syncThemeMenu(const QString& themeId) {
+    if (!m_themeActionGroup) return;
+    for (QAction* a : m_themeActionGroup->actions()) {
+        if (a->data().toString() == themeId) {
+            a->setChecked(true);
+            break;
+        }
+    }
+}
+
+void MainWindow::applyTheme(const QString& themeId) {
+    const QString id = ThemeManager::isValidId(themeId) ? themeId : QStringLiteral("default");
+    qApp->setStyleSheet(ThemeManager::styleSheetFor(id));
+    const ThemeColors colors = ThemeManager::colorsFor(id);
+    if (m_canvas) {
+        m_canvas->setThemeColors(colors.canvasBg, colors.canvasHint,
+                                 colors.checkerDark, colors.checkerLight);
+    }
+    syncThemeMenu(id);
 }
 
 void MainWindow::openImage() {

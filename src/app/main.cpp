@@ -15,8 +15,6 @@ int main(int argc, char* argv[]) {
     QApplication::setWindowIcon(UiAssets::icon("app.png"));
 
     QApplication::setStyle(QStyleFactory::create("Fusion"));
-    const QString qss = UiAssets::loadStyleSheet();
-    if (!qss.isEmpty()) app.setStyleSheet(qss);
 
     MainWindow w;
     w.show();

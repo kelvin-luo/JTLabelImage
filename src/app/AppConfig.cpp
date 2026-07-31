@@ -14,6 +14,7 @@ QJsonObject AppConfig::toJson() const {
     o["updateUrl"] = updateUrl;
     o["checkUpdateOnStartup"] = checkUpdateOnStartup;
     o["lastOpenDir"] = lastOpenDir;
+    o["themeId"] = themeId;
     return o;
 }
 
@@ -28,6 +29,7 @@ AppConfig AppConfig::fromJson(const QJsonObject& obj) {
     c.updateUrl = obj.value("updateUrl").toString(c.updateUrl);
     c.checkUpdateOnStartup = obj.value("checkUpdateOnStartup").toBool(c.checkUpdateOnStartup);
     c.lastOpenDir = obj.value("lastOpenDir").toString(c.lastOpenDir);
+    c.themeId = obj.value("themeId").toString(c.themeId);
     return c;
 }
 

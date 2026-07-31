@@ -43,6 +43,10 @@ public:
     int selected() const { return m_selected; }
 
     void fitToView();
+    void setThemeColors(const QColor& bg,
+                        const QColor& hint,
+                        const QColor& checkerDark,
+                        const QColor& checkerLight);
 
 signals:
     void shapesChanged();
@@ -88,4 +92,9 @@ private:
     int     m_stage = 0;
     bool    m_drawing = false;
     QPointF m_lastMouseImg;
+
+    QColor m_themeBg{30, 32, 36};
+    QColor m_themeHint{120, 125, 135};
+    QColor m_checkerDark{42, 44, 50};
+    QColor m_checkerLight{52, 55, 62};
 };
