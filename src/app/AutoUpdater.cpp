@@ -37,31 +37,70 @@ void AutoUpdater::checkForUpdates() {
     emit logMessage(QStringLiteral("检查更新: %1").arg(m_versionUrl));
     QNetworkRequest req{QUrl(m_versionUrl)};
     req.setHeader(QNetworkRequest::UserAgentHeader, "JTLabelImage");
+    // Prefer JSON; avoid accidental HTML content negotiation issues.
+    req.setRawHeader("Accept", "application/json,text/plain,*/*");
     QNetworkReply* reply = m_nam->get(req);
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         reply->deleteLater();
         if (reply->error() != QNetworkReply::NoError) {
-            emit checkFailed(reply->errorString());
+            const int http = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+            QString reason = reply->errorString();
+            if (http > 0)
+                reason += QStringLiteral(" (HTTP %1)").arg(http);
+
+            // Pages/Jekyll may 404 while the same file is available via raw GitHub.
+            const QUrl failed = reply->url();
+            if (http == 404
+                && failed.host().contains(QStringLiteral("kelvin-luo.github.io"))
+                && failed.path().endsWith(QStringLiteral("version.json"))) {
+                const QString fallback =
+                    QStringLiteral("https://raw.githubusercontent.com/kelvin-luo/kelvin-luo.github.io/master/version.json");
+                emit logMessage(QStringLiteral("Pages 不可用，回退: %1").arg(fallback));
+                QNetworkRequest req2{QUrl(fallback)};
+                req2.setHeader(QNetworkRequest::UserAgentHeader, "JTLabelImage");
+                req2.setRawHeader("Accept", "application/json,text/plain,*/*");
+                QNetworkReply* reply2 = m_nam->get(req2);
+                connect(reply2, &QNetworkReply::finished, this, [this, reply2]() {
+                    reply2->deleteLater();
+                    handleVersionReply(reply2);
+                });
+                return;
+            }
+
+            emit checkFailed(reason);
             return;
         }
-        const QJsonObject root = QJsonDocument::fromJson(reply->readAll()).object();
-        const QString latest = root.value("latest_version").toString();
-        const QString url = root.value("download_url").toString();
-        const QString notes = root.value("notes").toString();
-        if (latest.isEmpty() || url.isEmpty()) {
-            emit checkFailed(QStringLiteral("version.json 缺少 latest_version / download_url"));
-            return;
-        }
-        emit logMessage(QStringLiteral("云端版本 %1，本地版本 %2")
-                            .arg(latest, m_localVersion));
-        if (compareVersions(latest, m_localVersion) > 0) {
-            m_pendingDownloadUrl = url;
-            emit updateAvailable(latest, url, notes);
-        } else {
-            emit logMessage(QStringLiteral("已是最新版本"));
-            emit upToDate(latest);
-        }
+        handleVersionReply(reply);
     });
+}
+
+void AutoUpdater::handleVersionReply(QNetworkReply* reply) {
+    if (reply->error() != QNetworkReply::NoError) {
+        const int http = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        QString reason = reply->errorString();
+        if (http > 0)
+            reason += QStringLiteral(" (HTTP %1)").arg(http);
+        emit checkFailed(reason);
+        return;
+    }
+    const QByteArray body = reply->readAll();
+    const QJsonObject root = QJsonDocument::fromJson(body).object();
+    const QString latest = root.value("latest_version").toString();
+    const QString url = root.value("download_url").toString();
+    const QString notes = root.value("notes").toString();
+    if (latest.isEmpty() || url.isEmpty()) {
+        emit checkFailed(QStringLiteral("version.json 缺少 latest_version / download_url"));
+        return;
+    }
+    emit logMessage(QStringLiteral("云端版本 %1，本地版本 %2")
+                        .arg(latest, m_localVersion));
+    if (compareVersions(latest, m_localVersion) > 0) {
+        m_pendingDownloadUrl = url;
+        emit updateAvailable(latest, url, notes);
+    } else {
+        emit logMessage(QStringLiteral("已是最新版本"));
+        emit upToDate(latest);
+    }
 }
 
 void AutoUpdater::downloadUpdate(const QString& downloadUrl) {

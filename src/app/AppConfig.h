@@ -11,7 +11,7 @@ struct AppConfig {
     QString defaultLabel{"object"};
     QColor  labelColor{Qt::red};
     int     brushSize{20};
-    QString updateUrl{"https://kelvin-luo.github.io/version.json"};
+    QString updateUrl{"https://raw.githubusercontent.com/kelvin-luo/kelvin-luo.github.io/master/version.json"};
     bool    checkUpdateOnStartup{true};
     QString lastOpenDir;
     QString themeId{"default"};

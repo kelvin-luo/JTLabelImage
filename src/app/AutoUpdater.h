@@ -31,6 +31,7 @@ public slots:
 
 private:
     static int compareVersions(const QString& a, const QString& b);
+    void handleVersionReply(QNetworkReply* reply);
 
     QNetworkAccessManager* m_nam{nullptr};
     QString m_versionUrl;
