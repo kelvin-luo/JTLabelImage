@@ -2,9 +2,7 @@
 
 类似 labelme 的轻量级图像标注工具，支持：点、直线、矩形、旋转矩形、多边形、涂抹区域（mask）。
 
-> 技术栈：Qt6 Widgets/Network + C++17 + CMake + OpenCV 4.x  
-> 架构：算法（algo）+ Qt 控件（widgets）+ 程序（app）  
-> 编译器：MSVC 2022 · 构建器：Ninja
+
 
 ---
 
@@ -22,10 +20,7 @@ build.bat
 run.bat
 ```
 
-详细说明（编译 / 清理 / 运行 / 安装 / 架构图 / 升级模块）：
 
-👉 **[docs/dev_guide.md](docs/dev_guide.md)**  
-👉 根目录 **[BUILD.md](../BUILD.md)**
 
 ---
 
