@@ -4,8 +4,6 @@
 
 
 
----
-
 ## 截图
 
 ![JTLabelImage捕获2](./README.assets/JTLabelImage捕获2.JPG)
@@ -40,7 +38,6 @@ run.bat
 
 ## JSON
 
-- **标注数据**：`msvc_release/output/<basename>.json`（涂抹另存灰度 PNG）
-- **程序配置**：`msvc_release/kelvinlabel_config.json`
+- **标注数据**：`output/<basename>.json`（涂抹另存灰度 PNG）
+- **程序配置**：`klabel_config.json`
 
-格式细节见 [docs/dev_guide.md](docs/dev_guide.md)。
