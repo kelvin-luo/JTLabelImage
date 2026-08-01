@@ -8,23 +8,9 @@
 
 ---
 
-## 目录结构
+## 截图
 
-```
-PROJECT_DIR/
-├── BUILD.md
-├── build_msvc/
-├── msvc_release/          # exe + DLL + models/input/output
-├── deps_sdk/
-├── install/               # 可选
-└── code/
-    ├── CMakeLists.txt
-    ├── build.bat / run.bat / clean.bat   # 转发到 scripts/
-    ├── scripts/
-    ├── docs/              # 📘 开发文档
-    ├── src/algo|widgets|app/
-    └── thirdparty/
-```
+![JTLabelImage捕获2](./README.assets/JTLabelImage捕获2.JPG)
 
 ---
 
