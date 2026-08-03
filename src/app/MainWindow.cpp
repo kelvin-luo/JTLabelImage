@@ -344,7 +344,6 @@ void MainWindow::setupDocks() {
     m_inputDirEdit = new QLineEdit();
     m_outputDirEdit = new QLineEdit();
     m_modelsDirEdit = new QLineEdit();
-    m_updateUrlEdit = new QLineEdit();
     m_checkUpdateBox = new QCheckBox("启动时检查更新");
     m_themeCombo = new QComboBox();
     m_themeCombo->addItems(ThemeManager::displayNames());
@@ -352,7 +351,6 @@ void MainWindow::setupDocks() {
     form->addRow("输出目录", m_outputDirEdit);
     form->addRow("模型目录", m_modelsDirEdit);
     form->addRow("主题颜色", m_themeCombo);
-    form->addRow("更新 URL", m_updateUrlEdit);
     form->addRow("", m_checkUpdateBox);
     connect(m_themeCombo, &QComboBox::currentTextChanged,
             this, &MainWindow::onThemeChanged);
@@ -385,7 +383,6 @@ void MainWindow::syncUiFromConfig() {
     if (m_inputDirEdit) m_inputDirEdit->setText(m_config.inputDir);
     if (m_outputDirEdit) m_outputDirEdit->setText(m_config.outputDir);
     if (m_modelsDirEdit) m_modelsDirEdit->setText(m_config.modelsDir);
-    if (m_updateUrlEdit) m_updateUrlEdit->setText(m_config.updateUrl);
     if (m_checkUpdateBox) m_checkUpdateBox->setChecked(m_config.checkUpdateOnStartup);
     if (m_themeCombo) {
         m_themeCombo->blockSignals(true);
@@ -408,7 +405,6 @@ void MainWindow::applyConfigFromUi() {
     m_config.inputDir = m_inputDirEdit->text().trimmed();
     m_config.outputDir = m_outputDirEdit->text().trimmed();
     m_config.modelsDir = m_modelsDirEdit->text().trimmed();
-    m_config.updateUrl = m_updateUrlEdit->text().trimmed();
     m_config.checkUpdateOnStartup = m_checkUpdateBox->isChecked();
     m_config.themeId = ThemeManager::idFromDisplayName(m_themeCombo->currentText());
     m_config.defaultLabel = m_labelCombo->currentText();

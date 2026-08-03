@@ -72,7 +72,6 @@ private:
     QLineEdit*    m_inputDirEdit{nullptr};
     QLineEdit*    m_outputDirEdit{nullptr};
     QLineEdit*    m_modelsDirEdit{nullptr};
-    QLineEdit*    m_updateUrlEdit{nullptr};
     QCheckBox*    m_checkUpdateBox{nullptr};
     QComboBox*    m_themeCombo{nullptr};
     QActionGroup* m_themeActionGroup{nullptr};
