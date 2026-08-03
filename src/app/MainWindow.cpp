@@ -71,15 +71,28 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
         log(QStringLiteral("更新检查失败: %1").arg(r));
         m_timer.stop();
         log(m_timer.dumpSummary());
+        if (m_userInitiatedUpdateCheck) {
+            QMessageBox::warning(this, "检查更新",
+                                 QStringLiteral("更新检查失败:\n%1").arg(r));
+        }
+        m_userInitiatedUpdateCheck = false;
     });
-    connect(m_updater, &AutoUpdater::upToDate, this, [this](const QString&) {
+    connect(m_updater, &AutoUpdater::upToDate, this, [this](const QString& latest) {
         m_timer.stop();
         log(m_timer.dumpSummary());
+        if (m_userInitiatedUpdateCheck) {
+            QMessageBox::information(
+                this, "检查更新",
+                QStringLiteral("已是最新版本。\n\n当前版本: %1\n云端版本: %2")
+                    .arg(KELVINLABEL_VERSION, latest));
+        }
+        m_userInitiatedUpdateCheck = false;
     });
     connect(m_updater, &AutoUpdater::updateAvailable, this,
             [this](const QString& latest, const QString& url, const QString& notes) {
                 m_timer.stop();
                 log(m_timer.dumpSummary());
+                m_userInitiatedUpdateCheck = false;
                 const QString msg = QStringLiteral("发现新版本 %1（当前 %2）\n\n%3\n\n是否下载？")
                                         .arg(latest, KELVINLABEL_VERSION, notes);
                 if (QMessageBox::question(this, "检查更新", msg) == QMessageBox::Yes) {
@@ -123,8 +136,15 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     log(QStringLiteral("JTLabelImage %1 启动").arg(KELVINLABEL_VERSION));
     log(QStringLiteral("运行目录: %1").arg(runtimeRoot()));
 
-    if (m_config.checkUpdateOnStartup)
-        QMetaObject::invokeMethod(this, &MainWindow::checkForUpdates, Qt::QueuedConnection);
+    if (m_config.checkUpdateOnStartup) {
+        // Quiet startup check: only popup when a newer version is found.
+        QMetaObject::invokeMethod(this, [this]() {
+            m_userInitiatedUpdateCheck = false;
+            m_timer.reset();
+            m_timer.start(QStringLiteral("检查更新"));
+            m_updater->checkForUpdates();
+        }, Qt::QueuedConnection);
+    }
 }
 
 QString MainWindow::runtimeRoot() const {
@@ -601,6 +621,7 @@ void MainWindow::saveAppConfigAs() {
 
 void MainWindow::checkForUpdates() {
     applyConfigFromUi();
+    m_userInitiatedUpdateCheck = true;
     m_timer.reset();
     m_timer.start(QStringLiteral("检查更新"));
     m_updater->checkForUpdates();

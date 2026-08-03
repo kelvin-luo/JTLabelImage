@@ -6,7 +6,7 @@
 
 ## 截图
 
-![JTLabelImage捕获2](./README.assets/JTLabelImage捕获2.JPG)
+![JTLabelImage捕获2](docs/assets/JTLabelImage.JPG)
 
 ---
 

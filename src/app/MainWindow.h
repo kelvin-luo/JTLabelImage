@@ -83,4 +83,5 @@ private:
     AppConfig     m_config;
     StepTimer     m_timer;
     QColor        m_labelColor{Qt::red};
+    bool          m_userInitiatedUpdateCheck{false};
 };
